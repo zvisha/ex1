@@ -10,11 +10,10 @@ var ddos = require('./ddos_checker.js');
 const PORT=8080;
 
 
-
 //We need a function which handles requests and send response
 function handleRequest(request, response){
     if (ddos.check(request)) {
-        response.end('It Works!! Path Hit: ' + request.url);
+        response.end("OK");
     } else {
         response.writeHead(503, {"Content-Type": "text/html"});
         response.write('Service Unavailable');
@@ -27,8 +26,15 @@ var server = http.createServer(handleRequest);
 
 //Lets start our server
 server.listen(PORT, function(){
-    //Callback triggered when server is successfully listening. Hurray!
     console.log("Server listening on: http://localhost:%s", PORT);
 });
 
 
+
+// Get any keystroke
+var stdin = process.openStdin();
+process.stdin.setRawMode(true);
+stdin.on('data', function (text) {
+    console.log("Gracefully exit");
+    process.exit(0);
+});

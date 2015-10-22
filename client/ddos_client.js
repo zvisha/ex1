@@ -12,6 +12,7 @@ var running_clients = 0;
 if (process.argv.length < 4 ||
     isNaN(clients) || clients <= 0 ||
     isNaN(max_timeout) || max_timeout <= 0) {
+    
     console.log("usage: node " + process.argv[1] + " <clients-count> <max-timeout-ms>");
     process.exit(0);
 }
@@ -45,17 +46,9 @@ for (i = 0; i < clients; i++) {
 
 // send request and load random timeout
 function send_request(client_id) {
-    if (stopped == 0) {
-        http.request(client_options[client_id], callback).end();
-        var timeout = Math.floor((Math.random() * max_timeout));
-        setTimeout(send_request, timeout, client_id);
-    } else {
-        running_clients--;
-        console.log("Done with client " + running_clients);
-        if (running_clients == 0) {
-            process.exit(0);
-        }
-    }
+    http.request(client_options[client_id], callback).end();
+    var timeout = Math.floor((Math.random() * max_timeout));
+    setTimeout(send_request, timeout, client_id);
 }
 
 // Start the clients with random timeout!
@@ -70,9 +63,6 @@ for (i = 0; i < clients; i++) {
 var stdin = process.openStdin();
 process.stdin.setRawMode(true);
 stdin.on('data', function (text) {
-    console.log("Waiting for running timers to finish as was asked in exercise...");
-    stopped = 1;
-    if (running_clients == 0) {
-        process.exit(0);
-    }
+    console.log("Bye...");
+    process.exit(0);
 });
