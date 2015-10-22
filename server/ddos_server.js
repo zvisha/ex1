@@ -4,24 +4,16 @@
 
 //Lets require/import the HTTP module
 var http = require('http');
-var url = require('url');
+var ddos = require('./ddos_checker.js');
 
 //Lets define a port we want to listen to
 const PORT=8080;
 
 
-function ddos_check_path(request) {
-    var url_parts = url.parse(request.url, true);
-    var client_id = url_parts.query.client_id;
-    console.log(JSON.stringify(url_parts));
-    console.log("client " + client_id);
-    return (client_id < 4);
-}
-
 
 //We need a function which handles requests and send response
 function handleRequest(request, response){
-    if (ddos_check_path(request)) {
+    if (ddos.check(request)) {
         response.end('It Works!! Path Hit: ' + request.url);
     } else {
         response.writeHead(503, {"Content-Type": "text/html"});
