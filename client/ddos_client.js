@@ -3,17 +3,19 @@ var http = require('http');
 // Initialise parameters
 var clients = process.argv[2];
 var max_timeout = process.argv[3];
+var port = process.argv[4];
 var client_options = [];
 var stopped = 0;
 var running_clients = 0;
-
+var total_request = 0;
 
 // Show usage message if parameters lacking
-if (process.argv.length < 4 ||
-    isNaN(clients) || clients <= 0 ||
-    isNaN(max_timeout) || max_timeout <= 0) {
-    
-    console.log("usage: node " + process.argv[1] + " <clients-count> <max-timeout-ms>");
+if (process.argv.length < 5 ||
+    isNaN(clients)     || clients <= 0     ||
+    isNaN(max_timeout) || max_timeout <= 0 ||
+    isNaN(port)        || port <= 0 ) {
+
+    console.log("usage: node " + process.argv[1] + " <clients-count> <max-timeout-ms> <port>");
     process.exit(0);
 }
 
@@ -21,6 +23,7 @@ if (process.argv.length < 4 ||
 // This is just the responce printing handler
 callback = function(response) {
     var str = '';
+    total_request++;
     //another chunk of data has been recieved, so append it to `str`
     response.on('data', function (chunk) {
         str += chunk;
@@ -38,7 +41,7 @@ callback = function(response) {
 for (i = 0; i < clients; i++) {
     client_options[i] = {
         host: 'localhost',
-        port: 8080,
+        port: port,
         path: '/?client_id=' + i
     };
 }
@@ -63,6 +66,7 @@ for (i = 0; i < clients; i++) {
 var stdin = process.openStdin();
 process.stdin.setRawMode(true);
 stdin.on('data', function (text) {
-    console.log("Bye...");
+    console.log("Total requests:" + total_request);
+    console.log("Bye..");
     process.exit(0);
 });
