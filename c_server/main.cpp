@@ -152,7 +152,7 @@ void *connection_reply(int sock) {
         write(sock, "<html><body><H1>Hello world</H1></body></html>",46);
     } else {
         write(sock, "HTTP/1.1 503 Service Unavailable\n",
-                        strlen("HTTP/1.1 503 Service Unavailable\n")-1);
+                        strlen("HTTP/1.1 503 Service Unavailable\n"));
         write(sock, "Content-length: 46\n", 19);
         write(sock, "Content-Type: text/html\n\n", 25);
         write(sock, "<html><body><H1>Unavailable</H1></body></html>",46);
@@ -265,6 +265,7 @@ int main(int argc, char *argv[]) {
     {
         pthread_mutex_unlock(&running_threads_mutex);
         usleep(10000);
+        printf("%d Pending Clients\n", running_threads);
         pthread_mutex_lock(&running_threads_mutex);
     }
     pthread_mutex_unlock(&running_threads_mutex);

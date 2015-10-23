@@ -19,7 +19,6 @@ if (process.argv.length < 5 ||
     process.exit(0);
 }
 
-
 // This is just the responce printing handler
 callback = function(response) {
     var str = '';
