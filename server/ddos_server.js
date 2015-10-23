@@ -1,5 +1,5 @@
-/**
- * Created by zvisha on 22/10/2015.
+/*
+   Node.js webserver with DDOS protection.
  */
 
 //Lets require/import the HTTP module

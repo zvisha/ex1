@@ -1,3 +1,6 @@
+/*
+ Node.js DDOS protection module.
+ */
 
 var url = require('url');
 
@@ -49,7 +52,7 @@ function client_access_ok(client_id) {
     return true;
 }
 
-// Clean old entries every 5 seconds to  clean junk memory
+// Clean old entries every to  clean junk memory
 setInterval(clean_up, 5000);
 
 

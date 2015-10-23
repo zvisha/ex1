@@ -1,3 +1,7 @@
+/*
+    C webserver with DDOS protection.
+*/
+
 #include<netinet/in.h>
 #include<stdio.h>
 #include<stdlib.h>

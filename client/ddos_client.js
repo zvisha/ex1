@@ -1,3 +1,7 @@
+/*
+ Node.js client for testing DDOS protection server.
+ */
+
 var http = require('http');
 
 // Initialise parameters
@@ -5,7 +9,6 @@ var clients = process.argv[2];
 var max_timeout = process.argv[3];
 var port = process.argv[4];
 var client_options = [];
-var stopped = 0;
 var running_clients = 0;
 var total_request = 0;
 
@@ -28,7 +31,7 @@ callback = function(response) {
         str += chunk;
     });
 
-    //the whole response has been recieved, so we just print it out here
+    //the whole response has been received, so we just print it out here
     response.on('end', function () {
         console.log(str);
     });
@@ -66,10 +69,12 @@ for (i = 0; i < clients; i++) {
 
 
 // Get any keystroke
+
 var stdin = process.openStdin();
 if (process.stdin.isTTY) {
     process.stdin.setRawMode(true);
 }
+
 stdin.on('data', function (text) {
     console.log("Total requests:" + total_request);
     console.log("Bye..");
