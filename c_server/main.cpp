@@ -37,7 +37,7 @@ pthread_rwlock_t   con_map_rw           = PTHREAD_RWLOCK_INITIALIZER;
 pthread_mutex_t    entry_creation_mutex = PTHREAD_MUTEX_INITIALIZER;
 std::map<int,con_struct*> con_map;
 
-int create_socket = -1;
+int connect_socket = -1;
 
 // Multiplatform get character
 char getch() {
@@ -64,10 +64,10 @@ void *keyboard_handler(void *nothing) {
     printf("Keyboard listening\n");
     getch();
     printf("Keyboard stop\n");
-    if (create_socket != -1) {
-        // This will cause abort on the "create_socket" accept.
-        close(create_socket);
-        create_socket = -1;
+    if (connect_socket != -1) {
+        // This will cause abort on the "connect_socket" accept.
+        close(connect_socket);
+        connect_socket = -1;
         printf("Socket stop\n");
     }
     stop = 1;
@@ -76,6 +76,7 @@ void *keyboard_handler(void *nothing) {
 
 void clean_up() {
     printf("calling periodic clean up\n");
+    // Grab write mutex on the MAP
     pthread_rwlock_wrlock(&con_map_rw);
     std::map<int,con_struct*>::iterator it=con_map.begin();
     while (it != con_map.end()) {
@@ -89,10 +90,10 @@ void clean_up() {
         }
     }
     pthread_rwlock_unlock(&con_map_rw);
-
 }
 
 int ddos_check(int client_id) {
+    // Grab READ mutex on the MAP on every access
     pthread_rwlock_rdlock(&con_map_rw);
     std::map<int,con_struct*>::iterator it;
     it = con_map.find(client_id);
@@ -112,7 +113,7 @@ int ddos_check(int client_id) {
         }
         pthread_mutex_unlock(&it->second->mutex);
     } else { // Create new map entry
-        // Test that not created in mean-time
+        // Grab entry_creation_mutex and test again that not created in mean-time
         pthread_mutex_lock(&entry_creation_mutex);
         it = con_map.find(client_id);
         if (it != con_map.end()) {
@@ -161,7 +162,6 @@ void *connection_reply(int sock) {
     free(buffer);
     free(request_tail);
     close(sock);
-    //sleep(1);
     return 0;
 }
 
@@ -191,7 +191,7 @@ int main(int argc, char *argv[]) {
 
     port = atoi(argv[1]);
 
-    if ((create_socket = socket(AF_INET, SOCK_STREAM, 0)) <= 0){
+    if ((connect_socket = socket(AF_INET, SOCK_STREAM, 0)) <= 0){
         perror("The socket was created\n");
         return 1;
     }
@@ -200,7 +200,7 @@ int main(int argc, char *argv[]) {
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(port);
 
-    if (bind(create_socket, (struct sockaddr *) &address, sizeof(address)) != 0){
+    if (bind(connect_socket, (struct sockaddr *) &address, sizeof(address)) != 0){
         perror("Binding Socket\n");
         return 1;
     }
@@ -222,12 +222,12 @@ int main(int argc, char *argv[]) {
         }
 
 
-        if (listen(create_socket, 50) < 0) {
+        if (listen(connect_socket, 50) < 0) {
             perror("server: listen");
             exit(1);
         }
 
-        if ((new_socket = accept(create_socket,
+        if ((new_socket = accept(connect_socket,
                                  (struct sockaddr *) &address,
                                  &addrlen)) < 0) {
             perror("server: accept");
@@ -255,9 +255,8 @@ int main(int argc, char *argv[]) {
         }
     }
     // Just for safety
-
-    if (create_socket != -1) {
-        close(create_socket);
+    if (connect_socket != -1) {
+        close(connect_socket);
     }
     // Quick and dirty, no pthread_join but will work.
     pthread_mutex_lock(&running_threads_mutex);
