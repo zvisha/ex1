@@ -222,7 +222,7 @@ int main(int argc, char *argv[]) {
         }
 
 
-        if (listen(create_socket, 10) < 0) {
+        if (listen(create_socket, 50) < 0) {
             perror("server: listen");
             exit(1);
         }

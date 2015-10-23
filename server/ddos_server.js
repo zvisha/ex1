@@ -5,9 +5,8 @@
 //Lets require/import the HTTP module
 var http = require('http');
 var ddos = require('./ddos_checker.js');
+var port = process.argv[2] || 8080;
 
-//Lets define a port we want to listen to
-const PORT=8080;
 
 
 //We need a function which handles requests and send response
@@ -25,8 +24,8 @@ function handleRequest(request, response){
 var server = http.createServer(handleRequest);
 
 //Lets start our server
-server.listen(PORT, function(){
-    console.log("Server listening on: http://localhost:%s", PORT);
+server.listen(port, function(){
+    console.log("Server listening on: http://localhost:%s", port);
 });
 
 

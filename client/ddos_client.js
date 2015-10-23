@@ -33,6 +33,10 @@ callback = function(response) {
     response.on('end', function () {
         console.log(str);
     });
+
+    response.on('error', function(err) {
+        console.log("Connection refused");
+    });
 }
 
 
@@ -64,7 +68,9 @@ for (i = 0; i < clients; i++) {
 
 // Get any keystroke
 var stdin = process.openStdin();
-process.stdin.setRawMode(true);
+if (process.stdin.isTTY) {
+    process.stdin.setRawMode(true);
+}
 stdin.on('data', function (text) {
     console.log("Total requests:" + total_request);
     console.log("Bye..");
